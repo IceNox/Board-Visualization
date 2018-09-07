@@ -41,27 +41,100 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	std::ifstream in("BoardData.txt");
+	if (wnd.mouse.LeftIsPressed()) {
+		//locked = true;
 
-	pieces.clear();
-
-	int pieceCount; in >> pieceCount;
-	for (int i = 0; i < pieceCount; i++) {
-		int x; in >> x;
-		int y; in >> y;
-		int d; in >> d;
-		pieces.push_back(Piece(x, y, d));
+		int gx = (wnd.mouse.GetPosX() - 25) / 50;
+		int gy = (wnd.mouse.GetPosY() - 25) / 50;
 	}
+
+	if (!lpressed && (GetKeyState('L') & 0x8000))
+	{
+		locked = !locked;
+	}
+	lpressed = (GetKeyState('L') & 0x8000);
+
+	if (!locked) {
+		std::ifstream in("BoardData.txt");
+
+		pieces.clear();
+
+		int pieceCount; in >> pieceCount;
+		for (int i = 0; i < pieceCount; i++) {
+			int x; in >> x;
+			int y; in >> y;
+			int d; in >> d;
+			pieces.push_back(Piece(x, y, d));
+		}
+		in.close();
+	}
+	else return;
+
+	if (!(pieceSelected + 1)) {
+		int gx = (wnd.mouse.GetPosX() - 25) / 50;
+		int gy = (wnd.mouse.GetPosY() - 25) / 50;
+
+		if (gx >= 0 && gx < 9 && gy >= 0 && gy < 9) {
+			if (!pressed && wnd.mouse.LeftIsPressed()) {
+				for (int i = 0; i < pieces.size(); i++) {
+					if (pieces[i].x == gx && pieces[i].y == gy) {
+						pieceSelected = i;
+						break;
+					}
+				}
+			}
+		}
+	}
+	else {
+		int gx = (wnd.mouse.GetPosX() - 25) / 50;
+		int gy = (wnd.mouse.GetPosY() - 25) / 50;
+
+		if (gx >= 0 && gx < 9 && gy >= 0 && gy < 9) {
+			if (!pressed && wnd.mouse.LeftIsPressed()) {
+				bool occupied = false;
+				for (int i = 0; i < pieces.size(); i++) {
+					if (i == pieceSelected) continue;
+
+					if (gx == pieces[i].x && gy == pieces[i].y) {
+						occupied = true;
+					}
+				}
+
+				if (!occupied) {
+					std::ofstream out("BoardData.txt");
+
+					out << pieces.size() << std::endl;
+					for (int i = 0; i < pieces.size(); i++) {
+						if (i == pieceSelected) {
+							out << gx << " " << gy << " " << pieces[i].id << std::endl;
+						}
+						else
+						{
+							out << pieces[i].x << " " << pieces[i].y << " " << pieces[i].id << std::endl;
+						}
+					}
+
+					pieceSelected = -1;
+
+					out.close();
+				}
+			}
+		}
+	}
+
+	pressed = wnd.mouse.LeftIsPressed();
 }
 
 void Game::ComposeFrame()
 {
 	// Draw background
-	gfx.DrawSprite(0, 0, bg);
+	float mainbrightness = 1.0f - (0.5f * locked);
+	gfx.DrawSprite(0, 0, bg, mainbrightness);
 
 	// Draw pieces
 	for (int i = 0; i < pieces.size(); i++) {
-		gfx.DrawSprite(25 + pieces[i].x * 50, 25 + pieces[i].y * 50, spr_piece[pieces[i].id]);
+		float piecebrightness = 1.0f - (0.5f * (i == pieceSelected));
+		gfx.DrawSprite(25 + pieces[i].x * 50, 25 + pieces[i].y * 50, spr_piece[pieces[i].id], mainbrightness * piecebrightness);
 	}
 }
 

@@ -316,6 +316,19 @@ void Graphics::PutPixel( int x,int y,Color c )
 	pSysBuffer[Graphics::ScreenWidth * y + x] = c;
 }
 
+void Graphics::PutPixel( int x, int y, Color c, float b )
+{
+	assert(x >= 0);
+	assert(x < int(Graphics::ScreenWidth));
+	assert(y >= 0);
+	assert(y < int(Graphics::ScreenHeight));
+
+	int newr = c.GetR() * b;
+	int newg = c.GetG() * b;
+	int newb = c.GetB() * b;
+	pSysBuffer[Graphics::ScreenWidth * y + x] = Color(newr, newg, newb);
+}
+
 Color Graphics::GetPixel(int x, int y)
 {
 	assert(x >= 0);
@@ -325,7 +338,7 @@ Color Graphics::GetPixel(int x, int y)
 	return pSysBuffer[Graphics::ScreenWidth * y + x];
 }
 
-void Graphics::DrawSprite(int x, int y, const Sprite& s, Color chroma)
+void Graphics::DrawSprite(int x, int y, const Sprite& s, float brightness, Color chroma)
 {
 	const int height = s.GetHeight();
 	const int width  = s.GetWidth();
@@ -350,7 +363,7 @@ void Graphics::DrawSprite(int x, int y, const Sprite& s, Color chroma)
 
 			// Draw the pixel
 			if (s.GetPixel(sx, sy).GetA() == 255) {
-				PutPixel(x + sx, y + sy, s.GetPixel(sx, sy));
+				PutPixel(x + sx, y + sy, s.GetPixel(sx, sy), brightness);
 			}
 			else {
 				float ratio = s.GetPixel(sx, sy).GetA() / 255.0f;
@@ -359,7 +372,7 @@ void Graphics::DrawSprite(int x, int y, const Sprite& s, Color chroma)
 				int ng = GetPixel(x + sx, y + sy).GetG() + (s.GetPixel(sx, sy).GetG() - GetPixel(x + sx, y + sy).GetG()) * ratio;
 				int nb = GetPixel(x + sx, y + sy).GetB() + (s.GetPixel(sx, sy).GetB() - GetPixel(x + sx, y + sy).GetB()) * ratio;
 
-				PutPixel(x + sx, y + sy, Color(nr, ng, nb));
+				PutPixel(x + sx, y + sy, Color(nr, ng, nb), brightness);
 			}
 		}
 	}

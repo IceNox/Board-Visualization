@@ -58,9 +58,10 @@ public:
 		PutPixel( x,y,{ unsigned char( r ),unsigned char( g ),unsigned char( b ) } );
 	}
 	void PutPixel( int x,int y,Color c );
+	void PutPixel( int x, int y, Color c, float b );
 	Color GetPixel( int x, int y );
 
-	void DrawSprite(int x, int y, const Sprite& s, Color chroma = Colors::Magenta);
+	void DrawSprite(int x, int y, const Sprite& s, float brightness, Color chroma = Colors::Magenta);
 	~Graphics();
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;

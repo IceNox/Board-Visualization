@@ -62,4 +62,10 @@ private:
 	std::vector<Sprite> spr_piece;
 
 	std::vector<Piece> pieces;
+
+	int pieceSelected = -1;
+	bool pressed = false;
+
+	bool locked = false;
+	bool lpressed = false;
 };
