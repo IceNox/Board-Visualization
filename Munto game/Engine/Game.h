@@ -49,6 +49,7 @@ private:
 	/********************************/
 	/*  User Functions              */
 	/********************************/
+	void output_data();
 	void read_pictures();
 
 private:

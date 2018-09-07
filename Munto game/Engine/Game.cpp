@@ -86,11 +86,54 @@ void Game::UpdateModel()
 		}
 	}
 	else {
-		int gx = (wnd.mouse.GetPosX() - 25) / 50;
-		int gy = (wnd.mouse.GetPosY() - 25) / 50;
+		int mx = wnd.mouse.GetPosX();
+		int my = wnd.mouse.GetPosY();
+		bool lp = wnd.mouse.LeftIsPressed();
+
+		// Check for deletion
+		if (mx >= 4 && mx <= 20 && my >= 4 && my <= 20) {
+			if (!pressed && lp) {
+				pieces.erase(pieces.begin() + pieceSelected);
+
+				output_data();
+
+				pieceSelected = -1;
+			}
+		}
+
+		// Check for swapping
+		if (mx >= 479 && mx <= 495 && my >= 4 && my <= 20) {
+			if (!pressed && lp) {
+				int sid = pieces[pieceSelected].id;
+				int nid = sid;
+
+				if		(sid < 10) {
+					if (sid % 2 == 0)
+						nid = sid + 1;
+					else
+						nid = sid - 1;
+				}
+				else if (sid < 21 && sid > 10) {
+					if (sid % 2 == 1)
+						nid = sid + 1;
+					else
+						nid = sid - 1;
+				}
+
+				pieces[pieceSelected].id = nid;
+
+				output_data();
+
+				pieceSelected = -1;
+			}
+		}
+
+		// Check for moving
+		int gx = (mx - 25) / 50;
+		int gy = (my - 25) / 50;
 
 		if (gx >= 0 && gx < 9 && gy >= 0 && gy < 9) {
-			if (!pressed && wnd.mouse.LeftIsPressed()) {
+			if (!pressed && lp) {
 				bool occupied = false;
 				for (int i = 0; i < pieces.size(); i++) {
 					if (i == pieceSelected) continue;
@@ -101,22 +144,12 @@ void Game::UpdateModel()
 				}
 
 				if (!occupied) {
-					std::ofstream out("BoardData.txt");
+					pieces[pieceSelected].x = gx;
+					pieces[pieceSelected].y = gy;
 
-					out << pieces.size() << std::endl;
-					for (int i = 0; i < pieces.size(); i++) {
-						if (i == pieceSelected) {
-							out << gx << " " << gy << " " << pieces[i].id << std::endl;
-						}
-						else
-						{
-							out << pieces[i].x << " " << pieces[i].y << " " << pieces[i].id << std::endl;
-						}
-					}
+					output_data();
 
 					pieceSelected = -1;
-
-					out.close();
 				}
 			}
 		}
@@ -136,6 +169,18 @@ void Game::ComposeFrame()
 		float piecebrightness = 1.0f - (0.5f * (i == pieceSelected));
 		gfx.DrawSprite(25 + pieces[i].x * 50, 25 + pieces[i].y * 50, spr_piece[pieces[i].id], mainbrightness * piecebrightness);
 	}
+}
+
+void Game::output_data()
+{
+	std::ofstream out("BoardData.txt");
+
+	out << pieces.size() << std::endl;
+	for (int i = 0; i < pieces.size(); i++) {
+		out << pieces[i].x << " " << pieces[i].y << " " << pieces[i].id << std::endl;
+	}
+
+	out.close();
 }
 
 void Game::read_pictures()
