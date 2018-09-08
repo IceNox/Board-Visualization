@@ -41,7 +41,9 @@ class RuneZero(Rune):
     
     def __init__(self, column: int, row: int, owner: int, flipped: bool) -> None:
         super().__init__(column, row, owner, flipped)
-
+        
+        self.image_id = 0
+        
     def __str__(self) -> str:
         return RUNEZERONAME
     
@@ -66,7 +68,9 @@ class RuneOne(Rune):
     
     def __init__(self, column: int, row: int, owner: int, flipped: bool) -> None:
         super().__init__(column, row, owner, flipped)
-    
+
+        self.image_id = 2
+        
     def __str__(self) -> str:
         return RUNEONENAME
 
@@ -84,6 +88,8 @@ class RuneTwo(Rune):
     
     def __init__(self, column: int, row: int, owner: int, flipped: bool) -> None:
         super().__init__(column, row, owner, flipped)
+
+        self.image_id = 4
     
     def __str__(self) -> str:
         return RUNETWONAME
@@ -106,6 +112,8 @@ class RuneThree(Rune):
 
     def __init__(self, column: int, row: int, owner: int, flipped: bool) -> None:
         super().__init__(column, row, owner, flipped)
+
+        self.image_id = 6
     
     def __str__(self) -> str:
         return RUNETRHEENAME
@@ -118,7 +126,9 @@ class RuneFour(Rune):
     
     def __init__(self, column: int, row: int, owner: int, flipped: bool) -> None:
         super().__init__(column, row, owner, flipped)
-    
+
+        self.image_id = 8
+        
     def __str__(self) -> str:
         return RUNEFOURNAME
 
@@ -130,6 +140,8 @@ class RuneOblivion(Rune):
     
     def __init__(self, column: int, row: int, owner: int, flipped: bool) -> None:
         super().__init__(column, row, owner, flipped)
+
+        self.image_id = 10
     
     def __str__(self) -> str:
         return RUNEOBLNAME
