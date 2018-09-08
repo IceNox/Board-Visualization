@@ -1,6 +1,7 @@
-import collections
 import random
 import copy
+import time
+import sys
 import os
 
 import Pieces
@@ -105,7 +106,6 @@ class Board:
         for kill in move[1]:
             for piece in output.runes:
                 if (piece.column, piece.row) == kill:
-                    print(piece.column, piece.row)
                     piece.kill()
                     break
         
@@ -122,17 +122,38 @@ class Board:
         return output
 
 
-class AI:
+class State:
     
-    state = collections.namedtuple("state", "root children depth")
+    def __init__(self, board_state: Board, depth=0) -> None:
+        self.root       = board_state
+        self.children   = []
+        self.depth      = depth
 
-    def __init__(self, board_state: Board) -> None:
-        self.state  = AI.state(board_state, [], 0)
-    
-    @staticmethod
-    def bruteforce(s: 'state') -> None:
-        for move in s.root.get_moves():
-            s.children.append(AI.state(s.root.apply_move(move), [], s.depth + 1))
+    def bruteforce(self) -> None:
+        for move in self.root.get_moves():
+            self.children.append(State(self.root.apply_move(move), depth=self.depth+1))
+
+    def evaluate(self, weights: dict) -> tuple:
+        m_score1 = 0
+        e_score1 = 0
+        m_score2 = 0
+        e_score2 = 0
+        
+        for rune in [r for r in self.root.runes if not r.dead]:
+            if rune.owner == self.root.side:
+                m_score1 += weights[type(rune)]
+                m_score2 -= abs(rune.column - 5) + abs(rune.row - 5)
+                
+            else:
+                e_score1 += weights[type(rune)]
+                e_score2 -= abs(rune.column - 5) + abs(rune.row - 5)
+            
+        return (m_score1, sys.maxsize - e_score1, m_score2, sys.maxsize - e_score2)
+
+class AI:
+
+    def __init__(self, state: State) -> None:
+        self.state  = state
     
     def BFS(self, depth: int) -> None:
         queue = [self.state]
@@ -141,9 +162,15 @@ class AI:
             s = queue.pop(0)
             
             if s.depth < depth:
-                self.bruteforce(s)
+                s.bruteforce()
                 for new_state in s.children:
                     queue.append(new_state)
+
+    def minmax(self) -> State:
+        w={Pieces.RuneZero : 1, Pieces.RuneOne : 2, Pieces.RuneTwo : 3, Pieces.RuneThree : 4, Pieces.RuneFour : 5, Pieces.RuneOblivion : 0}
+        
+        return max(self.state.children, key=lambda Q: min(Q.children, key=lambda y: y.evaluate(w)).evaluate(w))
+
 
 def neighbour(position: tuple, direction: str) -> tuple:
     column, row = position
@@ -157,21 +184,20 @@ def neighbour(position: tuple, direction: str) -> tuple:
         return None
 
 
-game = [Board(Board.STARTINGRUNES)]
-game[-1].display()
+game = [State(Board(Board.STARTINGRUNES))]
+game[-1].root.display()
 
 while True:
-    user_input = input()
+    user_input = ""
 
     if user_input == "":
-        a = random.choice(game[-1].get_moves())
-        game.append(game[-1].apply_move(a))
-        print(a)
+        A = AI(State(game[-1].root))
+        A.BFS(2)
+        game.append(A.minmax())
+        
     else:
         game.pop()
-    game[-1].display()
-
-    print(game[-1].runes[0].dead, game[-1].runes[1].dead, game[-1].runes[2].dead)
+    game[-1].root.display()
 
 
 
