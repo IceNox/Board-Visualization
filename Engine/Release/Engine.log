@@ -1,0 +1,8 @@
+﻿  Game.cpp
+Game.cpp(63): warning C4018: '<': signed/unsigned mismatch
+  Generating code
+  42 of 1043 functions ( 4.0%) were compiled, the rest were copied from previous compilation.
+    30 functions were new in current compilation
+    62 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Engine.vcxproj -> C:\Users\User\Documents\Visual Studio 2017\Projects\Munto game\Release\Engine.exe
